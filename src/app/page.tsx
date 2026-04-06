@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 
 // ============================================================
@@ -145,7 +146,15 @@ export default function Page() {
         backdropFilter: scrolled ? "blur(16px)" : "none",
         transition: "all .35s ease",
       }}>
-        <div style={{ width: 40, height: 40 }} />
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <Image
+            src="/awan-logo.png"
+            alt="Awan Printing Point logo"
+            width={32}
+            height={32}
+          />
+          <span style={{ fontWeight: 700, fontSize: "16px" }}>Awan</span>
+        </div>
         <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
           {["Services","About","Clients","Contact"].map(n => (
             <a key={n} href={`#${n.toLowerCase()}`} style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", textDecoration: "none", transition: "color .2s" }}
