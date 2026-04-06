@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion, type Variants } from "framer-motion";
 
 const container: Variants = {
@@ -33,6 +34,31 @@ export default function Hero() {
     <section className="relative flex min-h-screen items-center overflow-hidden bg-[#0a0a0a] px-6 pt-20 sm:px-8 lg:px-12">
       <div className="absolute inset-0 -z-20 bg-[#0a0a0a]" />
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(255,255,255,0.02),transparent_22%,transparent_78%,rgba(255,255,255,0.02))]" />
+
+      <div className="absolute left-0 right-0 top-0 z-20">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-6 sm:px-8 lg:px-12">
+          <div className="flex items-center">
+            <Image
+              src="/awan-logo.png"
+              alt="Awan Printing Point logo"
+              width={40}
+              height={40}
+            />
+          </div>
+
+          <nav className="hidden items-center gap-8 md:flex">
+            {["Services", "About", "Clients", "Contact"].map((item) => (
+              <a
+                key={item}
+                href={`#${item.toLowerCase()}`}
+                className="text-sm font-medium text-white/55 transition-colors duration-200 hover:text-white"
+              >
+                {item}
+              </a>
+            ))}
+          </nav>
+        </div>
+      </div>
 
       <div className="mx-auto flex w-full max-w-7xl items-center">
         <div className="grid w-full items-center gap-14 lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)]">
