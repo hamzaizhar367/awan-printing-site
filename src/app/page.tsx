@@ -380,7 +380,7 @@ export default function Page() {
 
       {/* ── CLIENTS ──────────────────────────────────────────── */}
       <section id="clients" style={{ padding: "100px 0" }}>
-        <Up className="" style={{}}>
+        <Up className="">
           <div style={{ padding: "0 40px", maxWidth: 1200, margin: "0 auto 56px" }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: "#22d3ee", letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 16 }}>Our Clients</p>
             <h2 style={{ fontSize: "clamp(28px,4vw,48px)", fontWeight: 800, letterSpacing: "-.03em", lineHeight: 1.1, marginBottom: 12 }}>
