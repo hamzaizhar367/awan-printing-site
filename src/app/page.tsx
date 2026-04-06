@@ -56,6 +56,8 @@ const TESTIMONIALS = [
   { quote: "Their FSC certification and OEKO TEX compliance made the vendor approval process straightforward. Quality has never been an issue.", author: "Quality Assurance Lead", company: "Nishat Textile Mills" },
 ];
 
+const NAV_LINKS = ["Services", "About", "Clients", "Contact"];
+
 // ============================================================
 //  HOOKS
 // ============================================================
@@ -113,10 +115,19 @@ export default function Page() {
   const [busy, setBusy]       = useState(false);
 
   useEffect(() => {
-    setReady(true);
-    const fn = () => setScrolled(window.scrollY > 30);
+    const timer = window.setTimeout(() => setReady(true), 0);
+    const fn = () => {
+      setScrolled(window.scrollY > 30);
+      if (window.innerWidth >= 768) setMenu(false);
+    };
+    fn();
     window.addEventListener("scroll", fn);
-    return () => window.removeEventListener("scroll", fn);
+    window.addEventListener("resize", fn);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("scroll", fn);
+      window.removeEventListener("resize", fn);
+    };
   }, []);
 
   const send = async (e: React.FormEvent) => {
@@ -132,20 +143,20 @@ export default function Page() {
     outline: "none", fontFamily: "inherit", boxSizing: "border-box",
   };
 
-  const divider = <div style={{ height: 1, background: "rgba(255,255,255,0.07)", margin: "0 40px" }} />;
+  const divider = <div className="mx-4 sm:mx-6 lg:mx-10" style={{ height: 1, background: "rgba(255,255,255,0.07)" }} />;
 
   return (
-    <div style={{ background: "#0a0a0a", color: "#fff", fontFamily: "system-ui,-apple-system,sans-serif", minHeight: "100vh" }}>
+    <div className="overflow-x-hidden" style={{ background: "#0a0a0a", color: "#fff", fontFamily: "system-ui,-apple-system,sans-serif", minHeight: "100vh" }}>
 
       {/* ── NAV ──────────────────────────────────────────────── */}
       <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-        padding: "0 40px", height: 60, display: "flex", alignItems: "center", justifyContent: "space-between",
+        height: 60, display: "flex", alignItems: "center", justifyContent: "space-between",
         background: scrolled ? "rgba(10,10,10,0.97)" : "transparent",
         borderBottom: scrolled ? "1px solid rgba(255,255,255,0.07)" : "none",
         backdropFilter: scrolled ? "blur(16px)" : "none",
         transition: "all .35s ease",
-      }}>
+      }} className="px-4 sm:px-6 lg:px-10">
           <div className="flex items-center gap-2">
             <Image
               src="/awan-logo.png"
@@ -155,8 +166,8 @@ export default function Page() {
               className="object-contain"
             />
           </div>
-        <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
-          {["Services","About","Clients","Contact"].map(n => (
+        <div className="hidden items-center md:flex" style={{ gap: 32 }}>
+          {NAV_LINKS.map(n => (
             <a key={n} href={`#${n.toLowerCase()}`} style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", textDecoration: "none", transition: "color .2s" }}
               onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
               onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.5)")}>
@@ -169,40 +180,98 @@ export default function Page() {
             Get a Quote
           </a>
         </div>
+
+        <div className="flex items-center gap-3 md:hidden">
+          <a
+            href="#contact"
+            style={{ background: "#fff", color: "#000", fontWeight: 700, fontSize: 12, padding: "7px 14px", borderRadius: 8, textDecoration: "none" }}
+            onClick={() => setMenu(false)}
+          >
+            Quote
+          </a>
+          <button
+            type="button"
+            aria-label={menu ? "Close navigation menu" : "Open navigation menu"}
+            aria-expanded={menu}
+            onClick={() => setMenu((v) => !v)}
+            style={{
+              width: 56,
+              height: 40,
+              borderRadius: 10,
+              border: "1px solid rgba(255,255,255,0.12)",
+              background: "rgba(255,255,255,0.04)",
+              color: "#fff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              fontSize: 0,
+              position: "relative",
+            }}
+          >
+            <span style={{ fontSize: 20, lineHeight: 1 }}>{menu ? "×" : "☰"}</span>
+            <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, lineHeight: 1, fontWeight: 700, letterSpacing: ".08em" }}>
+              {menu ? "CLOSE" : "MENU"}
+            </span>
+          </button>
+        </div>
       </nav>
 
+      {menu && (
+        <div
+          className="fixed inset-x-4 top-[72px] z-[90] rounded-2xl border border-white/10 bg-black/95 p-4 shadow-2xl backdrop-blur md:hidden"
+          style={{ boxShadow: "0 20px 80px rgba(0,0,0,0.35)" }}
+        >
+          <div className="flex flex-col gap-2">
+            {NAV_LINKS.map((item) => (
+              <a
+                key={item}
+                href={`#${item.toLowerCase()}`}
+                className="rounded-xl px-4 py-3 text-sm font-medium text-white/80 transition-colors hover:bg-white/5 hover:text-white"
+                onClick={() => setMenu(false)}
+              >
+                {item}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ── HERO ─────────────────────────────────────────────── */}
-      <section style={{ minHeight: "100vh", display: "flex", alignItems: "center", padding: "120px 40px 80px", position: "relative", overflow: "hidden" }}>
+      <section className="px-4 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32 lg:px-10" style={{ minHeight: "100vh", display: "flex", alignItems: "center", position: "relative", overflow: "hidden" }}>
         {/* AWAN watermark */}
-        <div style={{ position: "fixed", top: "50%", left: "50%", transform: "translate(-50%,-50%)", fontSize: 300, fontWeight: 900, color: "rgba(255,255,255,0.03)", whiteSpace: "nowrap", pointerEvents: "none", userSelect: "none", zIndex: 0, letterSpacing: "-0.05em" }}>
+        <div className="hidden md:block" style={{ position: "fixed", top: "50%", left: "50%", transform: "translate(-50%,-50%)", fontSize: 300, fontWeight: 900, color: "rgba(255,255,255,0.03)", whiteSpace: "nowrap", pointerEvents: "none", userSelect: "none", zIndex: 0, letterSpacing: "-0.05em" }}>
+          AWAN
+        </div>
+        <div className="md:hidden" style={{ position: "absolute", top: 110, left: "50%", transform: "translateX(-50%)", fontSize: 112, fontWeight: 900, color: "rgba(255,255,255,0.025)", whiteSpace: "nowrap", pointerEvents: "none", userSelect: "none", zIndex: 0, letterSpacing: "-0.05em" }}>
           AWAN
         </div>
 
-        <div style={{ maxWidth: 1200, margin: "0 auto", width: "100%", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center", position: "relative", zIndex: 1 }}>
+        <div className="grid w-full grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20" style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
           {/* Left */}
-          <div>
-            <div style={{ opacity: ready ? 1 : 0, transform: ready ? "none" : "translateY(16px)", transition: "all .6s ease .1s", marginBottom: 28, display: "flex", alignItems: "center", gap: 12 }}>
+          <div className="min-w-0">
+            <div className="mb-5 sm:mb-7" style={{ opacity: ready ? 1 : 0, transform: ready ? "none" : "translateY(16px)", transition: "all .6s ease .1s", display: "flex", alignItems: "center", gap: 12 }}>
               <div style={{ width: 28, height: 2, background: "#22d3ee" }} />
-              <span style={{ fontSize: 12, fontWeight: 600, color: "#22d3ee", letterSpacing: ".1em", textTransform: "uppercase" }}>Est. 2000 · Faisalabad, Pakistan</span>
+              <span className="text-[10px] sm:text-xs" style={{ fontWeight: 600, color: "#22d3ee", letterSpacing: ".1em", textTransform: "uppercase" }}>Est. 2000 · Faisalabad, Pakistan</span>
             </div>
 
-            <h1 style={{ fontSize: "clamp(40px,6vw,80px)", fontWeight: 900, lineHeight: 1.02, letterSpacing: "-.03em", marginBottom: 24, opacity: ready ? 1 : 0, transform: ready ? "none" : "translateY(24px)", transition: "all .8s cubic-bezier(.16,1,.3,1) .2s" }}>
+            <h1 style={{ fontSize: "clamp(34px,11vw,80px)", fontWeight: 900, lineHeight: 1.02, letterSpacing: "-.03em", marginBottom: 24, opacity: ready ? 1 : 0, transform: ready ? "none" : "translateY(24px)", transition: "all .8s cubic-bezier(.16,1,.3,1) .2s" }}>
               Precision print<br />
               for brands that<br />
               <span style={{ color: "#22d3ee" }}>value quality.</span>
             </h1>
 
-            <p style={{ fontSize: 17, color: "rgba(255,255,255,0.45)", lineHeight: 1.7, marginBottom: 40, maxWidth: 440, opacity: ready ? 1 : 0, transition: "all .8s ease .5s" }}>
+            <p className="max-w-xl text-[15px] sm:text-[17px]" style={{ color: "rgba(255,255,255,0.45)", lineHeight: 1.7, marginBottom: 40, opacity: ready ? 1 : 0, transition: "all .8s ease .5s" }}>
               We deliver packaging, labels, tags and commercial print with the consistency, finish and operational reliability trusted by global brands.
             </p>
 
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 32, opacity: ready ? 1 : 0, transition: "all .8s ease .7s" }}>
-              <a href="#contact" style={{ background: "#fff", color: "#000", fontWeight: 700, fontSize: 14, padding: "11px 24px", borderRadius: 8, textDecoration: "none", transition: "all .2s" }}
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap" style={{ marginBottom: 32, opacity: ready ? 1 : 0, transition: "all .8s ease .7s" }}>
+              <a href="#contact" className="w-full text-center sm:w-auto" style={{ background: "#fff", color: "#000", fontWeight: 700, fontSize: 14, padding: "11px 24px", borderRadius: 8, textDecoration: "none", transition: "all .2s" }}
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "#e5e5e5"; (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)"; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "#fff"; (e.currentTarget as HTMLElement).style.transform = "none"; }}>
                 Start a Project →
               </a>
-              <a href="#services" style={{ border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.7)", fontWeight: 600, fontSize: 14, padding: "11px 24px", borderRadius: 8, textDecoration: "none", transition: "all .2s" }}
+              <a href="#services" className="w-full text-center sm:w-auto" style={{ border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.7)", fontWeight: 600, fontSize: 14, padding: "11px 24px", borderRadius: 8, textDecoration: "none", transition: "all .2s" }}
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.4)"; (e.currentTarget as HTMLElement).style.color = "#fff"; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.15)"; (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.7)"; }}>
                 View Services
@@ -215,14 +284,14 @@ export default function Page() {
           </div>
 
           {/* Right - stat boxes */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1 }}>
+          <div className="grid grid-cols-2 gap-px">
             {[
               { label: "ESTABLISHED",    value: "2000" },
               { label: "GLOBAL BRANDS",  value: "40+" },
               { label: "BASED IN",       value: "Faisalabad" },
               { label: "CERTIFICATIONS", value: "ISO · FSC · OEKO" },
             ].map((item, i) => (
-              <div key={i} style={{ padding: "28px 24px", borderLeft: "2px solid rgba(255,255,255,0.08)", opacity: ready ? 1 : 0, transition: `opacity .8s ease ${.4 + i * .1}s` }}>
+              <div key={i} className="px-4 py-5 sm:px-6 sm:py-7" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)", opacity: ready ? 1 : 0, transition: `opacity .8s ease ${.4 + i * .1}s` }}>
                 <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".12em", color: "rgba(255,255,255,0.3)", textTransform: "uppercase", marginBottom: 8 }}>{item.label}</p>
                 <p style={{ fontSize: 22, fontWeight: 700, color: "#fff" }}>{item.value}</p>
               </div>
@@ -234,7 +303,7 @@ export default function Page() {
       {divider}
 
       {/* ── SERVICES ─────────────────────────────────────────── */}
-      <section id="services" style={{ padding: "100px 40px", maxWidth: 1280, margin: "0 auto" }}>
+      <section id="services" className="px-4 py-20 sm:px-6 lg:px-10 lg:py-[100px]" style={{ maxWidth: 1280, margin: "0 auto" }}>
         <Up>
           <p style={{ fontSize: 11, fontWeight: 700, color: "#22d3ee", letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 16 }}>What We Do</p>
           <h2 style={{ fontSize: "clamp(28px,4vw,52px)", fontWeight: 800, letterSpacing: "-.03em", lineHeight: 1.05, marginBottom: 16 }}>
@@ -245,7 +314,7 @@ export default function Page() {
           </p>
         </Up>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, overflow: "hidden" }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3" style={{ border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, overflow: "hidden" }}>
           {SERVICES.map((s, i) => (
             <Up key={s.title} d={i * 50}>
               <div style={{ padding: "36px 32px", borderRight: "1px solid rgba(255,255,255,0.07)", borderBottom: "1px solid rgba(255,255,255,0.07)", transition: "background .25s", cursor: "default" }}
@@ -288,8 +357,8 @@ export default function Page() {
       {divider}
 
       {/* ── STATS ────────────────────────────────────────────── */}
-      <section style={{ padding: "80px 40px" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 40 }}>
+      <section className="px-4 py-16 sm:px-6 sm:py-20 lg:px-10">
+        <div className="grid grid-cols-2 gap-8 lg:grid-cols-4 lg:gap-10" style={{ maxWidth: 1200, margin: "0 auto" }}>
           {STATS.map(s => <StatBox key={s.l} {...s} />)}
         </div>
       </section>
@@ -297,7 +366,7 @@ export default function Page() {
       {divider}
 
       {/* ── WHY CHOOSE US ────────────────────────────────────── */}
-      <section style={{ padding: "100px 40px" }}>
+      <section className="px-4 py-20 sm:px-6 lg:px-10 lg:py-[100px]">
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <Up>
             <p style={{ fontSize: 11, fontWeight: 700, color: "#22d3ee", letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 16 }}>Why Choose Us</p>
@@ -309,7 +378,7 @@ export default function Page() {
             </p>
           </Up>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 24 }}>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {WHY.map((w, i) => (
               <Up key={w.title} d={i * 60}>
                 <div style={{ padding: "32px", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, transition: "all .3s", cursor: "default" }}
@@ -328,8 +397,8 @@ export default function Page() {
       {divider}
 
       {/* ── ABOUT ────────────────────────────────────────────── */}
-      <section id="about" style={{ padding: "100px 40px" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
+      <section id="about" className="px-4 py-20 sm:px-6 lg:px-10 lg:py-[100px]">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-20" style={{ maxWidth: 1200, margin: "0 auto", alignItems: "center" }}>
           <Up>
             <p style={{ fontSize: 11, fontWeight: 700, color: "#22d3ee", letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 16 }}>About Us</p>
             <h2 style={{ fontSize: "clamp(28px,4vw,48px)", fontWeight: 800, letterSpacing: "-.03em", lineHeight: 1.1, marginBottom: 24 }}>
@@ -363,7 +432,7 @@ export default function Page() {
           </Up>
 
           <Up d={120}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {[
                 { label: "Mission",        value: '"Perfection, precision and printing par excellence."', bg: "#111", textColor: "#fff", small: true },
                 { label: "Founded",        value: "2000",                    bg: "#22d3ee", textColor: "#000", big: true },
@@ -385,9 +454,9 @@ export default function Page() {
       {divider}
 
       {/* ── CLIENTS ──────────────────────────────────────────── */}
-      <section id="clients" style={{ padding: "100px 0" }}>
+      <section id="clients" className="py-20 lg:py-[100px]">
         <Up className="">
-          <div style={{ padding: "0 40px", maxWidth: 1200, margin: "0 auto 56px" }}>
+          <div className="px-4 sm:px-6 lg:px-10" style={{ maxWidth: 1200, margin: "0 auto 56px" }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: "#22d3ee", letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 16 }}>Our Clients</p>
             <h2 style={{ fontSize: "clamp(28px,4vw,48px)", fontWeight: 800, letterSpacing: "-.03em", lineHeight: 1.1, marginBottom: 12 }}>
               Delivering for the world's best.
@@ -414,7 +483,7 @@ export default function Page() {
       {divider}
 
       {/* ── TESTIMONIALS ─────────────────────────────────────── */}
-      <section style={{ padding: "100px 40px" }}>
+      <section className="px-4 py-20 sm:px-6 lg:px-10 lg:py-[100px]">
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <Up>
             <p style={{ fontSize: 11, fontWeight: 700, color: "#22d3ee", letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 16 }}>Testimonials</p>
@@ -423,7 +492,7 @@ export default function Page() {
             </h2>
           </Up>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}>
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
             {TESTIMONIALS.map((t, i) => (
               <Up key={i} d={i * 80}>
                 <div style={{ padding: "36px 32px", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 220, transition: "border-color .3s" }}
@@ -444,8 +513,8 @@ export default function Page() {
       {divider}
 
       {/* ── CONTACT ──────────────────────────────────────────── */}
-      <section id="contact" style={{ padding: "100px 40px" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80 }}>
+      <section id="contact" className="px-4 py-20 sm:px-6 lg:px-10 lg:py-[100px]">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-20" style={{ maxWidth: 1200, margin: "0 auto" }}>
           <Up>
             <p style={{ fontSize: 11, fontWeight: 700, color: "#22d3ee", letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 16 }}>Contact</p>
             <h2 style={{ fontSize: "clamp(28px,4vw,48px)", fontWeight: 800, letterSpacing: "-.03em", lineHeight: 1.1, marginBottom: 20 }}>
@@ -477,7 +546,7 @@ export default function Page() {
               </div>
             ) : (
               <form onSubmit={send} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-[14px]">
                   {[{ k: "name", l: "Full Name", t: "text", p: "Your name" }, { k: "email", l: "Email", t: "email", p: "you@company.com" }].map(({ k, l, t, p }) => (
                     <div key={k}>
                       <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.4)", marginBottom: 6, letterSpacing: ".06em", textTransform: "uppercase" }}>{l}</label>
@@ -505,7 +574,7 @@ export default function Page() {
                     onFocus={e => (e.target as HTMLElement).style.borderColor = "rgba(255,255,255,0.3)"}
                     onBlur={e => (e.target as HTMLElement).style.borderColor = "rgba(255,255,255,0.1)"} />
                 </div>
-                <button type="submit" disabled={busy} style={{ background: busy ? "rgba(255,255,255,0.6)" : "#fff", color: "#000", fontWeight: 700, fontSize: 15, padding: "13px 0", borderRadius: 8, border: "none", cursor: busy ? "not-allowed" : "pointer", transition: "all .2s" }}
+                <button type="submit" disabled={busy} className="w-full" style={{ background: busy ? "rgba(255,255,255,0.6)" : "#fff", color: "#000", fontWeight: 700, fontSize: 15, padding: "13px 0", borderRadius: 8, border: "none", cursor: busy ? "not-allowed" : "pointer", transition: "all .2s" }}
                   onMouseEnter={e => { if (!busy) (e.currentTarget as HTMLElement).style.background = "#e5e5e5"; }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = busy ? "rgba(255,255,255,0.6)" : "#fff"; }}>
                   {busy ? "Sending..." : "Send Enquiry →"}
@@ -517,8 +586,8 @@ export default function Page() {
       </section>
 
       {/* ── FOOTER ───────────────────────────────────────────── */}
-      <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", padding: "28px 40px" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+      <div className="px-4 py-7 sm:px-6 lg:px-10" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+        <div className="flex flex-col items-start gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between" style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div className="flex items-center gap-2">
             <Image
               src="/awan-logo.png"
@@ -539,6 +608,7 @@ export default function Page() {
         html { scroll-behavior: smooth; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         a { text-decoration: none; }
+        body { overflow-x: hidden; }
         @media (max-width: 768px) {
           section > div[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; gap: 40px !important; }
           section > div[style*="grid-template-columns: repeat(3"] { grid-template-columns: 1fr !important; }
