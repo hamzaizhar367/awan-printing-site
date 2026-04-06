@@ -519,7 +519,15 @@ export default function Page() {
       {/* ── FOOTER ───────────────────────────────────────────── */}
       <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", padding: "28px 40px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-          <span style={{ fontWeight: 800, fontSize: 16 }}>Awan<span style={{ color: "#22d3ee" }}>.</span></span>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <Image
+              src="/awan-logo.png"
+              alt="Awan Printing Point logo"
+              width={32}
+              height={32}
+            />
+            <span style={{ fontWeight: 700, fontSize: "16px" }}>Awan</span>
+          </div>
           <p style={{ fontSize: 13, color: "rgba(255,255,255,0.25)" }}>© {new Date().getFullYear()} Awan Printing Point · NTN {BUSINESS.ntn}</p>
           <p style={{ fontSize: 13, color: "rgba(255,255,255,0.25)" }}>{BUSINESS.fsc}</p>
         </div>
