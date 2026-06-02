@@ -1,620 +1,254 @@
 "use client";
-import Image from "next/image";
-import { useState, useEffect, useRef } from "react";
 
-// ============================================================
-//  EDIT YOUR CONTENT HERE
-// ============================================================
-const BUSINESS = {
-  name:     "Awan Printing Point",
-  phone1:   "+92 41 521 2373",
-  phone2:   "+92 301 866 5037",
-  email:    "awanprinter@gmail.com",
-  address:  "P-69, Street #1, Behind National Bank Main Branch, Jail Road, Faisalabad",
-  ntn:      "2681448",
-  fsc:      "FSC-C430007",
-  ceo:      "Muhammad Gulzar Alvi",
-};
+import Link from "next/link";
+import {
+  certifications,
+  industries,
+  productCategories,
+  serviceGroups,
+  stats,
+  trustBadges,
+  whyAwan,
+} from "@/lib/site-data";
+import { ContactCTA, ProductCard, ServiceCard } from "@/components/cards";
+import { SectionHeader } from "@/components/section-header";
+import {
+  cardHover,
+  fadeUp,
+  MotionSection,
+  motion,
+  staggerContainer,
+} from "@/components/site-motion";
+import { HeroVisual } from "@/components/visuals";
 
-const SERVICES = [
-  { n: "01", title: "Offset Printing",      body: "High-volume precision printing on Heidelberg GTO, SORM and Solna 125 machines. German and Swedish engineering for flawless commercial output." },
-  { n: "02", title: "Flexo Printing",       body: "Flexible packaging and label printing using flexographic technology. Ideal for poly bags, roll labels and high-speed production runs." },
-  { n: "03", title: "Screen Printing",      body: "Vibrant, durable screen printing for specialty labels, hang tags and promotional materials with rich colour saturation." },
-  { n: "04", title: "Thermal Printing",     body: "Barcode labels, UPC price tickets, QR codes and thermal transfer labels. Fast, accurate and compliant with global retail standards." },
-  { n: "05", title: "Corrugated Packaging", body: "Custom corrugated boxes and packaging solutions built for product protection, retail presentation and international shipping standards." },
-  { n: "06", title: "Digital Printing",     body: "Short-run digital printing for quick turnaround jobs. Sharp output across labels, cards and marketing materials with no minimum order." },
-];
-
-const ROW1 = ["Satin Labels","Hang Tags","Poly Bags","Barcode Stickers","Belly Bands","Kraft Cards","Brochures","Calendars","Posters","Menu Cards","Shelf Strips","Inlay Cards"];
-const ROW2 = ["Taffeta Labels","Zipper Bags","QR Labels","UPC Tickets","Greeting Cards","Stiffeners","Transparent Stickers","Paper Labels","Thermal Labels","Corporate Stationery","Plastic Hangers","Roll Labels"];
-
-const STATS = [
-  { n: 25, s: "+", l: "Years in Business" },
-  { n: 40, s: "+", l: "Global Brand Clients" },
-  { n: 3,  s: "",  l: "Intl. Certifications" },
-  { n: 10, s: "+", l: "Industrial Machines" },
-];
-
-const WHY = [
-  { icon: "🏭", title: "Industrial Machinery",    body: "German Heidelberg and Swedish Solna machines deliver precision that handcraft cannot match." },
-  { icon: "🌍", title: "Global Brand Trusted",    body: "IKEA, Primark, Calvin Klein and 40+ world-class brands trust us for mission-critical print." },
-  { icon: "📋", title: "Triple Certified",        body: "ISO 9001:2015, FSC and OEKO TEX-100 certified. Quality is not a promise - it is documented." },
-  { icon: "⚡", title: "Fast Turnaround",         body: "25 years of operational excellence means your order is on time, every time, at scale." },
-  { icon: "🎯", title: "End-to-End Solutions",    body: "From design support to cutting and finishing - one partner for your entire print supply chain." },
-  { icon: "💬", title: "Direct Communication",    body: "No middlemen. You deal directly with our production team for fast decisions and clear answers." },
-];
-
-const CLIENTS = [
-  "IKEA","Zara Home","Primark","Calvin Klein","Ralph Lauren","Aldi","EDEKA",
-  "JYSK","Sapphire Textile","Nishat Textile","Masood Textile","Kohinoor Textile",
-  "Indus Home","Dunnes Home","Livarno Home","Polo","Naf Naf","Novitesse","West Point","Bassetti",
-];
-
-const TESTIMONIALS = [
-  { quote: "Awan Printing Point has been our label supplier for over 8 years. Consistent quality, on-time delivery and a team that genuinely understands our requirements.", author: "Procurement Manager", company: "Sapphire Textile Mills" },
-  { quote: "We source labels from multiple countries. Awan consistently matches international quality standards at competitive rates. A reliable long-term partner.", author: "Supply Chain Director", company: "Masood Textile" },
-  { quote: "Their FSC certification and OEKO TEX compliance made the vendor approval process straightforward. Quality has never been an issue.", author: "Quality Assurance Lead", company: "Nishat Textile Mills" },
-];
-
-const NAV_LINKS = ["Services", "About", "Clients", "Contact"];
-
-// ============================================================
-//  HOOKS
-// ============================================================
-function useInView(threshold = 0.12) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [v, setV] = useState(false);
-  useEffect(() => {
-    const el = ref.current; if (!el) return;
-    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setV(true); io.disconnect(); } }, { threshold });
-    io.observe(el); return () => io.disconnect();
-  }, [threshold]);
-  return { ref, v };
-}
-
-function useCount(target: number, run: boolean) {
-  const [c, setC] = useState(0);
-  useEffect(() => {
-    if (!run) return;
-    let cur = 0; const step = Math.ceil(target / 60);
-    const t = setInterval(() => { cur = Math.min(cur + step, target); setC(cur); if (cur >= target) clearInterval(t); }, 24);
-    return () => clearInterval(t);
-  }, [run, target]);
-  return c;
-}
-
-function Up({ children, d = 0, className = "" }: { children: React.ReactNode; d?: number; className?: string }) {
-  const { ref, v } = useInView();
+export default function HomePage() {
   return (
-    <div ref={ref} className={className} style={{ opacity: v ? 1 : 0, transform: v ? "none" : "translateY(28px)", transition: `opacity .7s ease ${d}ms, transform .7s ease ${d}ms` }}>
-      {children}
-    </div>
-  );
-}
-
-function StatBox({ n, s, l }: { n: number; s: string; l: string }) {
-  const { ref, v } = useInView();
-  const c = useCount(n, v);
-  return (
-    <div ref={ref} style={{ textAlign: "center" }}>
-      <p style={{ fontSize: 52, fontWeight: 800, color: "#fff", lineHeight: 1, opacity: v ? 1 : 0, transition: "opacity .5s ease" }}>{c}{s}</p>
-      <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginTop: 6 }}>{l}</p>
-    </div>
-  );
-}
-
-// ============================================================
-//  PAGE
-// ============================================================
-export default function Page() {
-  const [menu, setMenu]       = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [ready, setReady]     = useState(false);
-  const [form, setForm]       = useState({ name: "", email: "", phone: "", message: "" });
-  const [sent, setSent]       = useState(false);
-  const [busy, setBusy]       = useState(false);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => setReady(true), 0);
-    const fn = () => {
-      setScrolled(window.scrollY > 30);
-      if (window.innerWidth >= 768) setMenu(false);
-    };
-    fn();
-    window.addEventListener("scroll", fn);
-    window.addEventListener("resize", fn);
-    return () => {
-      window.clearTimeout(timer);
-      window.removeEventListener("scroll", fn);
-      window.removeEventListener("resize", fn);
-    };
-  }, []);
-
-  const send = async (e: React.FormEvent) => {
-    e.preventDefault(); setBusy(true);
-    await new Promise(r => setTimeout(r, 900));
-    setSent(true); setBusy(false);
-  };
-
-  const inputStyle: React.CSSProperties = {
-    width: "100%", background: "rgba(255,255,255,0.04)",
-    border: "1px solid rgba(255,255,255,0.1)", color: "#fff",
-    borderRadius: 8, padding: "12px 16px", fontSize: 14,
-    outline: "none", fontFamily: "inherit", boxSizing: "border-box",
-  };
-
-  const divider = <div className="mx-4 sm:mx-6 lg:mx-10" style={{ height: 1, background: "rgba(255,255,255,0.07)" }} />;
-
-  return (
-    <div className="overflow-x-hidden" style={{ background: "#0a0a0a", color: "#fff", fontFamily: "system-ui,-apple-system,sans-serif", minHeight: "100vh" }}>
-
-      {/* ── NAV ──────────────────────────────────────────────── */}
-      <nav style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-        height: 60, display: "flex", alignItems: "center", justifyContent: "space-between",
-        background: scrolled ? "rgba(10,10,10,0.97)" : "transparent",
-        borderBottom: scrolled ? "1px solid rgba(255,255,255,0.07)" : "none",
-        backdropFilter: scrolled ? "blur(16px)" : "none",
-        transition: "all .35s ease",
-      }} className="px-4 sm:px-6 lg:px-10">
-          <div className="flex items-center gap-2">
-            <Image
-              src="/awan-logo.png"
-              alt="Awan Printing Point logo"
-              width={40}
-              height={40}
-              className="object-contain"
-            />
-          </div>
-        <div className="hidden items-center md:flex" style={{ gap: 32 }}>
-          {NAV_LINKS.map(n => (
-            <a key={n} href={`#${n.toLowerCase()}`} style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", textDecoration: "none", transition: "color .2s" }}
-              onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
-              onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.5)")}>
-              {n}
-            </a>
-          ))}
-          <a href="#contact" style={{ background: "#fff", color: "#000", fontWeight: 700, fontSize: 13, padding: "8px 20px", borderRadius: 8, textDecoration: "none", transition: "background .2s" }}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "#e5e5e5"}
-            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "#fff"}>
-            Get a Quote
-          </a>
-        </div>
-
-        <div className="flex items-center gap-3 md:hidden">
-          <a
-            href="#contact"
-            style={{ background: "#fff", color: "#000", fontWeight: 700, fontSize: 12, padding: "7px 14px", borderRadius: 8, textDecoration: "none" }}
-            onClick={() => setMenu(false)}
+    <main className="overflow-hidden bg-white text-slate-950">
+      <section className="relative overflow-hidden bg-[#F6F8FC]">
+        <div className="absolute left-1/2 top-0 h-[560px] w-[900px] -translate-x-1/2 rounded-full bg-[#2E3092]/10 blur-3xl" />
+        <div className="absolute right-0 top-20 h-72 w-72 rounded-full bg-[#B8C6FF]/40 blur-3xl" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(46,48,146,0.035)_1px,transparent_1px),linear-gradient(180deg,rgba(46,48,146,0.03)_1px,transparent_1px)] bg-[size:34px_34px] opacity-60" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent" />
+        <div className="relative mx-auto grid max-w-7xl gap-8 px-5 py-12 sm:px-6 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:px-8 lg:pb-16 lg:pt-14">
+          <motion.div
+            className="flex flex-col justify-center"
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
           >
-            Quote
-          </a>
-          <button
-            type="button"
-            aria-label={menu ? "Close navigation menu" : "Open navigation menu"}
-            aria-expanded={menu}
-            onClick={() => setMenu((v) => !v)}
-            style={{
-              width: 56,
-              height: 40,
-              borderRadius: 10,
-              border: "1px solid rgba(255,255,255,0.12)",
-              background: "rgba(255,255,255,0.04)",
-              color: "#fff",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              fontSize: 0,
-              position: "relative",
-            }}
-          >
-            <span style={{ fontSize: 20, lineHeight: 1 }}>{menu ? "×" : "☰"}</span>
-            <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, lineHeight: 1, fontWeight: 700, letterSpacing: ".08em" }}>
-              {menu ? "CLOSE" : "MENU"}
-            </span>
-          </button>
-        </div>
-      </nav>
+            <motion.p
+              variants={fadeUp}
+              className="w-fit rounded-full border border-[#2E3092]/15 bg-white px-4 py-2 text-sm font-semibold text-[#2E3092] shadow-sm"
+            >
+              Faisalabad printing & packaging since 2000
+            </motion.p>
+            <motion.h1
+              variants={fadeUp}
+              className="mt-5 max-w-4xl text-[2.35rem] font-semibold leading-[1.04] tracking-tight text-slate-950 sm:text-[2.75rem] lg:text-[2.95rem] lg:leading-[1.04]"
+            >
+              Premium Printing & Packaging Solutions for Brands, Exporters &
+              Institutions
+            </motion.h1>
+            <motion.p
+              variants={fadeUp}
+              className="mt-5 max-w-2xl text-base leading-8 text-slate-700 sm:text-[1.05rem]"
+            >
+              Awan Printing Point delivers professional printing, labeling, and
+              packaging solutions from Faisalabad, supporting businesses with
+              reliable quality, industrial capability, and certified production
+              standards since 2000.
+            </motion.p>
 
-      {menu && (
-        <div
-          className="fixed inset-x-4 top-[72px] z-[90] rounded-2xl border border-white/10 bg-black/95 p-4 shadow-2xl backdrop-blur md:hidden"
-          style={{ boxShadow: "0 20px 80px rgba(0,0,0,0.35)" }}
-        >
-          <div className="flex flex-col gap-2">
-            {NAV_LINKS.map((item) => (
-              <a
-                key={item}
-                href={`#${item.toLowerCase()}`}
-                className="rounded-xl px-4 py-3 text-sm font-medium text-white/80 transition-colors hover:bg-white/5 hover:text-white"
-                onClick={() => setMenu(false)}
+            <motion.div variants={fadeUp} className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <Link
+                href="/contact"
+                className="inline-flex justify-center rounded-full bg-[#2E3092] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#2E3092]/20 transition hover:-translate-y-0.5 hover:bg-[#242673]"
               >
-                {item}
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
+                Request a Quote
+              </Link>
+              <Link
+                href="/products"
+                className="inline-flex justify-center rounded-full border border-slate-300 bg-white px-6 py-3 text-sm font-bold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[#2E3092]/40 hover:text-[#2E3092]"
+              >
+                View Products
+              </Link>
+            </motion.div>
 
-      {/* ── HERO ─────────────────────────────────────────────── */}
-      <section className="px-4 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32 lg:px-10" style={{ minHeight: "100vh", display: "flex", alignItems: "center", position: "relative", overflow: "hidden" }}>
-        {/* AWAN watermark */}
-        <div className="hidden md:block" style={{ position: "fixed", top: "50%", left: "50%", transform: "translate(-50%,-50%)", fontSize: 300, fontWeight: 900, color: "rgba(255,255,255,0.03)", whiteSpace: "nowrap", pointerEvents: "none", userSelect: "none", zIndex: 0, letterSpacing: "-0.05em" }}>
-          AWAN
-        </div>
-        <div className="md:hidden" style={{ position: "absolute", top: 110, left: "50%", transform: "translateX(-50%)", fontSize: 112, fontWeight: 900, color: "rgba(255,255,255,0.025)", whiteSpace: "nowrap", pointerEvents: "none", userSelect: "none", zIndex: 0, letterSpacing: "-0.05em" }}>
-          AWAN
-        </div>
+            <motion.div variants={fadeUp} className="mt-3">
+              {/* Place the approved PDF at public/downloads/awan-printing-point-profile.pdf, then convert this into a file link. */}
+              <span className="text-sm font-semibold text-[#2E3092]">
+                Download Company Profile
+              </span>
+              <span className="ml-2 text-sm text-slate-500">coming soon</span>
+            </motion.div>
 
-        <div className="grid w-full grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20" style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
-          {/* Left */}
-          <div className="min-w-0">
-            <div className="mb-5 sm:mb-7" style={{ opacity: ready ? 1 : 0, transform: ready ? "none" : "translateY(16px)", transition: "all .6s ease .1s", display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ width: 28, height: 2, background: "#22d3ee" }} />
-              <span className="text-[10px] sm:text-xs" style={{ fontWeight: 600, color: "#22d3ee", letterSpacing: ".1em", textTransform: "uppercase" }}>Est. 2000 · Faisalabad, Pakistan</span>
-            </div>
-
-            <h1 style={{ fontSize: "clamp(34px,11vw,80px)", fontWeight: 900, lineHeight: 1.02, letterSpacing: "-.03em", marginBottom: 24, opacity: ready ? 1 : 0, transform: ready ? "none" : "translateY(24px)", transition: "all .8s cubic-bezier(.16,1,.3,1) .2s" }}>
-              Precision print<br />
-              for brands that<br />
-              <span style={{ color: "#22d3ee" }}>value quality.</span>
-            </h1>
-
-            <p className="max-w-xl text-[15px] sm:text-[17px]" style={{ color: "rgba(255,255,255,0.45)", lineHeight: 1.7, marginBottom: 40, opacity: ready ? 1 : 0, transition: "all .8s ease .5s" }}>
-              We deliver packaging, labels, tags and commercial print with the consistency, finish and operational reliability trusted by global brands.
-            </p>
-
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap" style={{ marginBottom: 32, opacity: ready ? 1 : 0, transition: "all .8s ease .7s" }}>
-              <a href="#contact" className="w-full text-center sm:w-auto" style={{ background: "#fff", color: "#000", fontWeight: 700, fontSize: 14, padding: "11px 24px", borderRadius: 8, textDecoration: "none", transition: "all .2s" }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "#e5e5e5"; (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)"; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "#fff"; (e.currentTarget as HTMLElement).style.transform = "none"; }}>
-                Start a Project →
-              </a>
-              <a href="#services" className="w-full text-center sm:w-auto" style={{ border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.7)", fontWeight: 600, fontSize: 14, padding: "11px 24px", borderRadius: 8, textDecoration: "none", transition: "all .2s" }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.4)"; (e.currentTarget as HTMLElement).style.color = "#fff"; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.15)"; (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.7)"; }}>
-                View Services
-              </a>
-            </div>
-
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", letterSpacing: ".08em", opacity: ready ? 1 : 0, transition: "opacity .8s ease 1s" }}>
-              ISO 9001:2015 · FSC Certified · OEKO TEX-100
-            </p>
-          </div>
-
-          {/* Right - stat boxes */}
-          <div className="grid grid-cols-2 gap-px">
-            {[
-              { label: "ESTABLISHED",    value: "2000" },
-              { label: "GLOBAL BRANDS",  value: "40+" },
-              { label: "BASED IN",       value: "Faisalabad" },
-              { label: "CERTIFICATIONS", value: "ISO · FSC · OEKO" },
-            ].map((item, i) => (
-              <div key={i} className="px-4 py-5 sm:px-6 sm:py-7" style={{ borderLeft: "2px solid rgba(255,255,255,0.08)", opacity: ready ? 1 : 0, transition: `opacity .8s ease ${.4 + i * .1}s` }}>
-                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".12em", color: "rgba(255,255,255,0.3)", textTransform: "uppercase", marginBottom: 8 }}>{item.label}</p>
-                <p style={{ fontSize: 22, fontWeight: 700, color: "#fff" }}>{item.value}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {divider}
-
-      {/* ── SERVICES ─────────────────────────────────────────── */}
-      <section id="services" className="px-4 py-20 sm:px-6 lg:px-10 lg:py-[100px]" style={{ maxWidth: 1280, margin: "0 auto" }}>
-        <Up>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "#22d3ee", letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 16 }}>What We Do</p>
-          <h2 style={{ fontSize: "clamp(28px,4vw,52px)", fontWeight: 800, letterSpacing: "-.03em", lineHeight: 1.05, marginBottom: 16 }}>
-            Full-service printing.<br />Zero compromise.
-          </h2>
-          <p style={{ fontSize: 16, color: "rgba(255,255,255,0.4)", maxWidth: 440, lineHeight: 1.7, marginBottom: 64 }}>
-            Every order executed on industrial German and Swedish machinery - precision guaranteed.
-          </p>
-        </Up>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3" style={{ border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, overflow: "hidden" }}>
-          {SERVICES.map((s, i) => (
-            <Up key={s.title} d={i * 50}>
-              <div style={{ padding: "36px 32px", borderRight: "1px solid rgba(255,255,255,0.07)", borderBottom: "1px solid rgba(255,255,255,0.07)", transition: "background .25s", cursor: "default" }}
-                onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.03)"}
-                onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "transparent"}>
-                <p style={{ fontSize: 11, fontWeight: 700, color: "#22d3ee", letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 14 }}>{s.n}</p>
-                <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12, letterSpacing: "-.02em" }}>{s.title}</h3>
-                <p style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", lineHeight: 1.7 }}>{s.body}</p>
-              </div>
-            </Up>
-          ))}
-        </div>
-      </section>
-
-      {divider}
-
-      {/* ── PRODUCT TICKER ───────────────────────────────────── */}
-      <section style={{ padding: "80px 0", overflow: "hidden", background: "#0a0a0a" }}>
-        <Up>
-          <p style={{ textAlign: "center", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: ".14em", textTransform: "uppercase", marginBottom: 40 }}>
-            30+ Products · One Trusted Partner
-          </p>
-        </Up>
-
-        {[ROW1, ROW2].map((row, ri) => (
-          <div key={ri} style={{ overflow: "hidden", position: "relative", marginBottom: ri === 0 ? 12 : 0 }}>
-            <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 100, background: "linear-gradient(to right,#0a0a0a,transparent)", zIndex: 2 }} />
-            <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 100, background: "linear-gradient(to left,#0a0a0a,transparent)", zIndex: 2 }} />
-            <div style={{ display: "flex", gap: 0, width: "max-content", animation: `${ri === 0 ? "tickerLeft" : "tickerRight"} ${ri === 0 ? 35 : 28}s linear infinite` }}>
-              {[...row, ...row].map((item, i) => (
-                <span key={i} style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.5)", padding: "10px 28px", whiteSpace: "nowrap", borderRight: "1px solid rgba(255,255,255,0.06)" }}>
-                  {item}
+            <motion.div variants={fadeUp} className="mt-5 flex flex-wrap gap-2.5">
+              {trustBadges.map((badge) => (
+                <span
+                  key={badge}
+                  className="rounded-full border border-[#2E3092]/15 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm"
+                >
+                  {badge}
                 </span>
               ))}
-            </div>
-          </div>
-        ))}
-      </section>
+            </motion.div>
+          </motion.div>
 
-      {divider}
-
-      {/* ── STATS ────────────────────────────────────────────── */}
-      <section className="px-4 py-16 sm:px-6 sm:py-20 lg:px-10">
-        <div className="grid grid-cols-2 gap-8 lg:grid-cols-4 lg:gap-10" style={{ maxWidth: 1200, margin: "0 auto" }}>
-          {STATS.map(s => <StatBox key={s.l} {...s} />)}
+          <HeroVisual />
         </div>
       </section>
 
-      {divider}
-
-      {/* ── WHY CHOOSE US ────────────────────────────────────── */}
-      <section className="px-4 py-20 sm:px-6 lg:px-10 lg:py-[100px]">
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <Up>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#22d3ee", letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 16 }}>Why Choose Us</p>
-            <h2 style={{ fontSize: "clamp(28px,4vw,52px)", fontWeight: 800, letterSpacing: "-.03em", lineHeight: 1.05, marginBottom: 16 }}>
-              Built different.<br />Proven by results.
+      <MotionSection className="px-5 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-12 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/70 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:p-10">
+          <div>
+            <p className="text-sm font-semibold text-[#2E3092]">About</p>
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
+              A professional printing and packaging supplier for serious buyers.
             </h2>
-            <p style={{ fontSize: 16, color: "rgba(255,255,255,0.4)", maxWidth: 440, lineHeight: 1.7, marginBottom: 64 }}>
-              25 years of trust built one order at a time - for the world's most demanding brands.
+            <p className="mt-5 leading-8 text-slate-600">
+              Based in Faisalabad, Awan Printing Point works with businesses,
+              exporters, institutions and procurement teams that need dependable
+              print production across labels, tags, packaging inserts,
+              stationery and commercial materials.
             </p>
-          </Up>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {WHY.map((w, i) => (
-              <Up key={w.title} d={i * 60}>
-                <div style={{ padding: "32px", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, transition: "all .3s", cursor: "default" }}
-                  onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "rgba(255,255,255,0.18)"; el.style.transform = "translateY(-4px)"; }}
-                  onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "rgba(255,255,255,0.07)"; el.style.transform = "none"; }}>
-                  <p style={{ fontSize: 28, marginBottom: 16 }}>{w.icon}</p>
-                  <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 10, letterSpacing: "-.01em" }}>{w.title}</h3>
-                  <p style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", lineHeight: 1.7 }}>{w.body}</p>
-                </div>
-              </Up>
+          </div>
+          <motion.div
+            className="grid gap-4 sm:grid-cols-2"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.25 }}
+          >
+            {stats.map(([label, value]) => (
+              <motion.div
+                key={label}
+                variants={fadeUp}
+                whileHover={cardHover}
+                className="rounded-2xl border border-slate-200 bg-slate-50 p-6"
+              >
+                <p className="text-sm font-semibold text-slate-500">{label}</p>
+                <p className="mt-3 text-2xl font-semibold text-slate-950">{value}</p>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </MotionSection>
 
-      {divider}
-
-      {/* ── ABOUT ────────────────────────────────────────────── */}
-      <section id="about" className="px-4 py-20 sm:px-6 lg:px-10 lg:py-[100px]">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-20" style={{ maxWidth: 1200, margin: "0 auto", alignItems: "center" }}>
-          <Up>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#22d3ee", letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 16 }}>About Us</p>
-            <h2 style={{ fontSize: "clamp(28px,4vw,48px)", fontWeight: 800, letterSpacing: "-.03em", lineHeight: 1.1, marginBottom: 24 }}>
-              25 years of trust.<br />Proven by the world's best brands.
-            </h2>
-            <p style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", lineHeight: 1.8, marginBottom: 16 }}>
-              Awan Printing Point is one of Pakistan's leading commercial printing houses, operating an ISO-certified facility powered by industrial German and Swedish machinery in Faisalabad since 2000.
-            </p>
-            <p style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", lineHeight: 1.8, marginBottom: 40 }}>
-              Led by CEO <strong style={{ color: "#fff" }}>{BUSINESS.ceo}</strong>, our team delivers flawless output at scale - earning the trust of IKEA, Primark, Calvin Klein, Zara Home and 40+ other global brands.
-            </p>
-
-            {/* Contact info - visible but not dominant */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 36, padding: "20px 24px", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12 }}>
-              {[
-                { icon: "📞", text: `${BUSINESS.phone1}  ·  ${BUSINESS.phone2}` },
-                { icon: "✉️", text: BUSINESS.email },
-              ].map(({ icon, text }) => (
-                <div key={text} style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                  <span style={{ fontSize: 14 }}>{icon}</span>
-                  <span style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>{text}</span>
-                </div>
-              ))}
-            </div>
-
-            <a href="#contact" style={{ background: "#fff", color: "#000", fontWeight: 700, fontSize: 14, padding: "12px 28px", borderRadius: 8, textDecoration: "none", display: "inline-block", transition: "background .2s" }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "#e5e5e5"}
-              onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "#fff"}>
-              Work with us →
-            </a>
-          </Up>
-
-          <Up d={120}>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {[
-                { label: "Mission",        value: '"Perfection, precision and printing par excellence."', bg: "#111", textColor: "#fff", small: true },
-                { label: "Founded",        value: "2000",                    bg: "#22d3ee", textColor: "#000", big: true },
-                { label: "Location",       value: "Faisalabad, Pakistan",    bg: "#111", textColor: "#fff" },
-                { label: "Certifications", value: "FSC · ISO · OEKO",       bg: "rgba(255,255,255,0.05)", textColor: "#fff" },
-              ].map((card, i) => (
-                <div key={i} style={{ background: card.bg, border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: "24px", transition: "transform .3s", cursor: "default" }}
-                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)"}
-                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.transform = "none"}>
-                  <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: card.bg === "#22d3ee" ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.3)", marginBottom: 8 }}>{card.label}</p>
-                  <p style={{ fontSize: card.big ? 42 : card.small ? 13 : 18, fontWeight: card.big ? 900 : 600, color: card.textColor, lineHeight: 1.3, fontStyle: card.small ? "italic" : "normal" }}>{card.value}</p>
-                </div>
-              ))}
-            </div>
-          </Up>
-        </div>
-      </section>
-
-      {divider}
-
-      {/* ── CLIENTS ──────────────────────────────────────────── */}
-      <section id="clients" className="py-20 lg:py-[100px]">
-        <Up className="">
-          <div className="px-4 sm:px-6 lg:px-10" style={{ maxWidth: 1200, margin: "0 auto 56px" }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#22d3ee", letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 16 }}>Our Clients</p>
-            <h2 style={{ fontSize: "clamp(28px,4vw,48px)", fontWeight: 800, letterSpacing: "-.03em", lineHeight: 1.1, marginBottom: 12 }}>
-              Delivering for the world's best.
-            </h2>
-            <p style={{ fontSize: 15, color: "rgba(255,255,255,0.4)" }}>Global brands trust us to deliver - on time, every time.</p>
-          </div>
-        </Up>
-
-        <div style={{ overflow: "hidden", position: "relative" }}>
-          <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 100, background: "linear-gradient(to right,#0a0a0a,transparent)", zIndex: 2 }} />
-          <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 100, background: "linear-gradient(to left,#0a0a0a,transparent)", zIndex: 2 }} />
-          <div style={{ display: "flex", gap: 10, width: "max-content", animation: "tickerLeft 30s linear infinite" }}>
-            {[...CLIENTS, ...CLIENTS].map((c, i) => (
-              <span key={i} style={{ padding: "10px 24px", borderRadius: 999, fontSize: 13, fontWeight: 600, border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.55)", whiteSpace: "nowrap", flexShrink: 0, transition: "all .2s", cursor: "default" }}
-                onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "rgba(255,255,255,0.35)"; el.style.color = "#fff"; el.style.background = "rgba(255,255,255,0.05)"; }}
-                onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "rgba(255,255,255,0.1)"; el.style.color = "rgba(255,255,255,0.55)"; el.style.background = "transparent"; }}>
-                {c}
-              </span>
+      <MotionSection className="bg-[#FBFCFF] px-5 py-24 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <SectionHeader
+            eyebrow="Products"
+            title="Product categories for fast B2B evaluation."
+            body="Preview core product systems, then move into the full products page for use cases and quote paths."
+          />
+          <motion.div
+            className="grid gap-6 md:grid-cols-2 xl:grid-cols-4"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.1 }}
+          >
+            {productCategories.slice(0, 4).map((product) => (
+              <ProductCard key={product.title} product={product} />
             ))}
+          </motion.div>
+          <div className="mt-12 text-center">
+            <Link
+              href="/products"
+              className="inline-flex rounded-full bg-[#0B1739] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-slate-900/15 transition hover:-translate-y-0.5 hover:bg-[#14275B]"
+            >
+              View all products
+            </Link>
           </div>
         </div>
-      </section>
+      </MotionSection>
 
-      {divider}
-
-      {/* ── TESTIMONIALS ─────────────────────────────────────── */}
-      <section className="px-4 py-20 sm:px-6 lg:px-10 lg:py-[100px]">
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <Up>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#22d3ee", letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 16 }}>Testimonials</p>
-            <h2 style={{ fontSize: "clamp(28px,4vw,48px)", fontWeight: 800, letterSpacing: "-.03em", lineHeight: 1.1, marginBottom: 64 }}>
-              What our clients say.
-            </h2>
-          </Up>
-
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-            {TESTIMONIALS.map((t, i) => (
-              <Up key={i} d={i * 80}>
-                <div style={{ padding: "36px 32px", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 220, transition: "border-color .3s" }}
-                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.18)"}
-                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.07)"}>
-                  <p style={{ fontSize: 15, color: "rgba(255,255,255,0.65)", lineHeight: 1.75, marginBottom: 32, fontStyle: "italic" }}>"{t.quote}"</p>
-                  <div>
-                    <p style={{ fontSize: 14, fontWeight: 600, color: "#fff" }}>{t.author}</p>
-                    <p style={{ fontSize: 12, color: "#22d3ee", marginTop: 4 }}>{t.company}</p>
-                  </div>
-                </div>
-              </Up>
+      <MotionSection className="px-5 py-24 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <SectionHeader
+            eyebrow="Services"
+            title="Grouped services for practical sourcing."
+            body="A clean overview of print, label, packaging and identification support."
+          />
+          <motion.div
+            className="grid gap-5 lg:grid-cols-5"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.1 }}
+          >
+            {serviceGroups.map((group) => (
+              <ServiceCard key={group.title} group={group} />
             ))}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </MotionSection>
 
-      {divider}
+      <MotionSection className="relative overflow-hidden bg-[#0B1739] px-5 py-24 text-white sm:px-6 lg:px-8">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(120,145,255,0.22),transparent_30%),radial-gradient(circle_at_80%_30%,rgba(255,255,255,0.08),transparent_28%)]" />
+        <div className="relative mx-auto max-w-7xl">
+          <SectionHeader
+            eyebrow="Why Awan Printing Point"
+            title="Built for reliable business purchasing."
+            body="Awan Printing Point supports repeat orders, custom production needs and practical B2B communication."
+            inverted
+          />
+          <motion.div
+            className="grid gap-5 md:grid-cols-2 xl:grid-cols-3"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.1 }}
+          >
+            {whyAwan.map((item) => (
+              <motion.div
+                key={item.title}
+                variants={fadeUp}
+                whileHover={cardHover}
+                className="rounded-[1.5rem] border border-white/10 bg-white/[0.05] p-6 shadow-xl shadow-black/5 backdrop-blur"
+              >
+                <h3 className="text-lg font-semibold">{item.title}</h3>
+                <p className="mt-3 text-sm leading-7 text-blue-50/78">{item.body}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </MotionSection>
 
-      {/* ── CONTACT ──────────────────────────────────────────── */}
-      <section id="contact" className="px-4 py-20 sm:px-6 lg:px-10 lg:py-[100px]">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-20" style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <Up>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#22d3ee", letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 16 }}>Contact</p>
-            <h2 style={{ fontSize: "clamp(28px,4vw,48px)", fontWeight: 800, letterSpacing: "-.03em", lineHeight: 1.1, marginBottom: 20 }}>
-              Let's talk about your next order.
-            </h2>
-            <p style={{ fontSize: 15, color: "rgba(255,255,255,0.45)", lineHeight: 1.7, marginBottom: 48 }}>
-              Fill in the form and our team will respond within 24 hours.
-            </p>
+      <MotionSection className="bg-[#F6F8FC] px-5 py-24 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-3">
+          {certifications.map((cert) => (
+            <motion.div
+              key={cert.title}
+              whileHover={cardHover}
+              className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm"
+            >
+              <p className="text-3xl font-black text-[#2E3092]">{cert.label}</p>
+              <h3 className="mt-4 text-xl font-semibold">{cert.title}</h3>
+              <p className="mt-3 leading-7 text-slate-600">{cert.body}</p>
+            </motion.div>
+          ))}
+        </div>
+      </MotionSection>
 
-            {[
-              { label: "Phone",   lines: [BUSINESS.phone1, BUSINESS.phone2] },
-              { label: "Email",   lines: [BUSINESS.email] },
-              { label: "Address", lines: [BUSINESS.address] },
-              { label: "NTN",     lines: [BUSINESS.ntn] },
-            ].map(({ label, lines }) => (
-              <div key={label} style={{ marginBottom: 24 }}>
-                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: 6 }}>{label}</p>
-                {lines.map((l, i) => <p key={i} style={{ fontSize: 14, color: i === 0 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.4)", lineHeight: 1.7 }}>{l}</p>)}
+      <MotionSection className="px-5 py-24 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <SectionHeader
+            eyebrow="Industries"
+            title="Supporting textile, retail, institutional and corporate buyers."
+          />
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {industries.slice(0, 6).map((industry) => (
+              <div key={industry.title} className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm">
+                <h3 className="text-lg font-semibold">{industry.title}</h3>
+                <p className="mt-3 text-sm leading-7 text-slate-600">{industry.body}</p>
               </div>
             ))}
-          </Up>
-
-          <Up d={100}>
-            {sent ? (
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 400, textAlign: "center", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16 }}>
-                <p style={{ fontSize: 40, marginBottom: 16 }}>✅</p>
-                <h3 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>Message received!</h3>
-                <p style={{ color: "rgba(255,255,255,0.4)" }}>We'll be in touch within 24 hours.</p>
-              </div>
-            ) : (
-              <form onSubmit={send} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-[14px]">
-                  {[{ k: "name", l: "Full Name", t: "text", p: "Your name" }, { k: "email", l: "Email", t: "email", p: "you@company.com" }].map(({ k, l, t, p }) => (
-                    <div key={k}>
-                      <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.4)", marginBottom: 6, letterSpacing: ".06em", textTransform: "uppercase" }}>{l}</label>
-                      <input type={t} required placeholder={p} value={form[k as keyof typeof form]}
-                        onChange={e => setForm({ ...form, [k]: e.target.value })}
-                        style={inputStyle}
-                        onFocus={e => (e.target as HTMLElement).style.borderColor = "rgba(255,255,255,0.3)"}
-                        onBlur={e => (e.target as HTMLElement).style.borderColor = "rgba(255,255,255,0.1)"} />
-                    </div>
-                  ))}
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.4)", marginBottom: 6, letterSpacing: ".06em", textTransform: "uppercase" }}>Phone</label>
-                  <input type="tel" placeholder="+92 300 0000000" value={form.phone}
-                    onChange={e => setForm({ ...form, phone: e.target.value })}
-                    style={inputStyle}
-                    onFocus={e => (e.target as HTMLElement).style.borderColor = "rgba(255,255,255,0.3)"}
-                    onBlur={e => (e.target as HTMLElement).style.borderColor = "rgba(255,255,255,0.1)"} />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.4)", marginBottom: 6, letterSpacing: ".06em", textTransform: "uppercase" }}>Message</label>
-                  <textarea required rows={5} placeholder="Tell us about your print requirements..."
-                    value={form.message} onChange={e => setForm({ ...form, message: e.target.value })}
-                    style={{ ...inputStyle, resize: "none" }}
-                    onFocus={e => (e.target as HTMLElement).style.borderColor = "rgba(255,255,255,0.3)"}
-                    onBlur={e => (e.target as HTMLElement).style.borderColor = "rgba(255,255,255,0.1)"} />
-                </div>
-                <button type="submit" disabled={busy} className="w-full" style={{ background: busy ? "rgba(255,255,255,0.6)" : "#fff", color: "#000", fontWeight: 700, fontSize: 15, padding: "13px 0", borderRadius: 8, border: "none", cursor: busy ? "not-allowed" : "pointer", transition: "all .2s" }}
-                  onMouseEnter={e => { if (!busy) (e.currentTarget as HTMLElement).style.background = "#e5e5e5"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = busy ? "rgba(255,255,255,0.6)" : "#fff"; }}>
-                  {busy ? "Sending..." : "Send Enquiry →"}
-                </button>
-              </form>
-            )}
-          </Up>
-        </div>
-      </section>
-
-      {/* ── FOOTER ───────────────────────────────────────────── */}
-      <div className="px-4 py-7 sm:px-6 lg:px-10" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
-        <div className="flex flex-col items-start gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between" style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <div className="flex items-center gap-2">
-            <Image
-              src="/awan-logo.png"
-              alt="Awan Printing Point logo"
-              width={40}
-              height={40}
-              className="object-contain"
-            />
           </div>
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.25)" }}>© {new Date().getFullYear()} Awan Printing Point · NTN {BUSINESS.ntn}</p>
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.25)" }}>{BUSINESS.fsc}</p>
         </div>
-      </div>
+      </MotionSection>
 
-      <style>{`
-        @keyframes tickerLeft  { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-        @keyframes tickerRight { from { transform: translateX(-50%); } to { transform: translateX(0); } }
-        html { scroll-behavior: smooth; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        a { text-decoration: none; }
-        body { overflow-x: hidden; }
-        @media (max-width: 768px) {
-          section > div[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; gap: 40px !important; }
-          section > div[style*="grid-template-columns: repeat(3"] { grid-template-columns: 1fr !important; }
-          section > div[style*="grid-template-columns: repeat(4"] { grid-template-columns: repeat(2,1fr) !important; }
-        }
-      `}</style>
-    </div>
+      <ContactCTA />
+    </main>
   );
 }

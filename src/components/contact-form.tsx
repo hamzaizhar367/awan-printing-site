@@ -8,8 +8,11 @@ type ContactFormProps = {
 
 const initialFormState = {
   name: "",
-  email: "",
+  company: "",
   phone: "",
+  email: "",
+  service: "",
+  quantity: "",
   message: "",
 };
 
@@ -27,6 +30,7 @@ export function ContactForm({ businessName }: ContactFormProps) {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
+    // TODO: Connect this form to the production quote backend or email workflow.
     await new Promise((resolve) => setTimeout(resolve, 900));
     setSubmitted(true);
     setLoading(false);
@@ -35,22 +39,23 @@ export function ContactForm({ businessName }: ContactFormProps) {
 
   if (submitted) {
     return (
-      <div className="soft-card animate-rise rounded-[2rem] p-8 text-center sm:p-10">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--brand)] text-lg font-semibold text-white">
+      <div className="rounded-[1.5rem] border border-slate-200 bg-white p-8 text-center shadow-xl shadow-slate-200/80 sm:p-10">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#2E3092] text-sm font-bold text-white shadow-lg shadow-[#2E3092]/20">
           OK
         </div>
-        <h3 className="font-heading text-2xl font-semibold text-[var(--foreground)]">
-          Thanks, we received your message.
+        <h3 className="text-2xl font-semibold text-slate-950">
+          {businessName} quote request received.
         </h3>
-        <p className="mt-3 text-sm leading-7 text-[var(--muted)] sm:text-base">
-          {businessName} will follow up within one business day.
+        <p className="mt-3 text-sm leading-7 text-slate-600 sm:text-base">
+          Thank you. Please contact us directly by phone or email while online
+          inquiry handling is being connected.
         </p>
         <button
           type="button"
           onClick={() => setSubmitted(false)}
-          className="mt-6 inline-flex items-center justify-center rounded-full border border-[var(--card-border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)] hover:-translate-y-0.5 hover:border-[var(--brand)] hover:text-[var(--brand)]"
+          className="mt-6 inline-flex items-center justify-center rounded-full border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:-translate-y-0.5 hover:border-[#2E3092] hover:text-[#2E3092]"
         >
-          Send another message
+          Send another request
         </button>
       </div>
     );
@@ -59,75 +64,128 @@ export function ContactForm({ businessName }: ContactFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="soft-card rounded-[2rem] p-6 sm:p-8"
+      className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/70 sm:p-8"
     >
       <div className="grid gap-5 sm:grid-cols-2">
-        <label className="block text-sm font-medium text-[var(--foreground)]">
-          Full name
-          <input
-            type="text"
-            required
-            placeholder="Your name"
-            value={formData.name}
-            onChange={updateField("name")}
-            className="mt-2 w-full rounded-2xl border border-[var(--card-border)] bg-white/80 px-4 py-3.5 text-sm text-[var(--foreground)] outline-none placeholder:text-[color:rgba(86,100,92,0.8)] focus:border-[var(--brand)] focus:ring-4 focus:ring-[color:rgba(22,84,58,0.12)]"
-          />
-        </label>
-
-        <label className="block text-sm font-medium text-[var(--foreground)]">
-          Email address
-          <input
-            type="email"
-            required
-            placeholder="you@example.com"
-            value={formData.email}
-            onChange={updateField("email")}
-            className="mt-2 w-full rounded-2xl border border-[var(--card-border)] bg-white/80 px-4 py-3.5 text-sm text-[var(--foreground)] outline-none placeholder:text-[color:rgba(86,100,92,0.8)] focus:border-[var(--brand)] focus:ring-4 focus:ring-[color:rgba(22,84,58,0.12)]"
-          />
-        </label>
+        <TextInput
+          label="Full name"
+          type="text"
+          required
+          placeholder="Your name"
+          value={formData.name}
+          onChange={updateField("name")}
+        />
+        <TextInput
+          label="Company name"
+          type="text"
+          required
+          placeholder="Company or institution"
+          value={formData.company}
+          onChange={updateField("company")}
+        />
+        <TextInput
+          label="Phone"
+          type="tel"
+          required
+          placeholder="+92 300 0000000"
+          value={formData.phone}
+          onChange={updateField("phone")}
+        />
+        <TextInput
+          label="Email"
+          type="email"
+          required
+          placeholder="you@company.com"
+          value={formData.email}
+          onChange={updateField("email")}
+        />
       </div>
 
-      <div className="mt-5 grid gap-5 sm:grid-cols-[1.1fr_0.9fr]">
-        <label className="block text-sm font-medium text-[var(--foreground)]">
-          Phone number
-          <input
-            type="tel"
-            placeholder="+1 (555) 123-4567"
-            value={formData.phone}
-            onChange={updateField("phone")}
-            className="mt-2 w-full rounded-2xl border border-[var(--card-border)] bg-white/80 px-4 py-3.5 text-sm text-[var(--foreground)] outline-none placeholder:text-[color:rgba(86,100,92,0.8)] focus:border-[var(--brand)] focus:ring-4 focus:ring-[color:rgba(22,84,58,0.12)]"
-          />
+      <div className="mt-5 grid gap-5 sm:grid-cols-2">
+        <label className="block text-sm font-semibold text-slate-900">
+          Service required
+          <select
+            required
+            value={formData.service}
+            onChange={(event) =>
+              setFormData((current) => ({ ...current, service: event.target.value }))
+            }
+            className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3.5 text-sm text-slate-900 outline-none transition hover:border-slate-400 focus:border-[#2E3092] focus:ring-4 focus:ring-[#2E3092]/10"
+          >
+            <option value="">Select service</option>
+            <option>Labels and stickers</option>
+            <option>Hang tags and textile labels</option>
+            <option>Poly bag or zipper bag printing</option>
+            <option>Brochures or catalogues</option>
+            <option>Barcode, UPC or QR labels</option>
+            <option>Corporate stationery</option>
+            <option>Other printing requirement</option>
+          </select>
         </label>
-
-        <div className="rounded-[1.5rem] border border-dashed border-[color:rgba(22,84,58,0.2)] bg-[color:rgba(22,84,58,0.04)] px-4 py-4 text-sm leading-6 text-[var(--muted)]">
-          Share timings, budget, or the main issue you need solved and we can respond faster.
-        </div>
+        <TextInput
+          label="Quantity / project size"
+          type="text"
+          required
+          placeholder="Example: 10,000 labels"
+          value={formData.quantity}
+          onChange={updateField("quantity")}
+        />
       </div>
 
-      <label className="mt-5 block text-sm font-medium text-[var(--foreground)]">
-        Project details
+      <label className="mt-5 block text-sm font-semibold text-slate-900">
+        Message
         <textarea
           required
           rows={6}
-          placeholder="Tell us what you need, where the work is based, and your preferred timeline."
+          placeholder="Share size, material, quantity, deadline and any finishing requirements."
           value={formData.message}
           onChange={updateField("message")}
-          className="mt-2 w-full resize-none rounded-[1.5rem] border border-[var(--card-border)] bg-white/80 px-4 py-3.5 text-sm text-[var(--foreground)] outline-none placeholder:text-[color:rgba(86,100,92,0.8)] focus:border-[var(--brand)] focus:ring-4 focus:ring-[color:rgba(22,84,58,0.12)]"
+          className="mt-2 w-full resize-none rounded-lg border border-slate-300 bg-white px-4 py-3.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-slate-400 focus:border-[#2E3092] focus:ring-4 focus:ring-[#2E3092]/10"
         />
       </label>
 
       <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm leading-6 text-[var(--muted)]">
-          No spam, no pressure, and no hidden callout surprises.
+        <p className="text-sm leading-6 text-slate-500">
+          Frontend only for now. Backend submission can be connected next.
         </p>
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex min-w-44 items-center justify-center rounded-full bg-[var(--brand)] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_18px_35px_rgba(22,84,58,0.24)] hover:-translate-y-0.5 hover:bg-[var(--brand-strong)] disabled:cursor-not-allowed disabled:opacity-70"
+          className="inline-flex min-w-44 items-center justify-center rounded-full bg-[#2E3092] px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#2E3092]/20 transition hover:-translate-y-0.5 hover:bg-[#242673] disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {loading ? "Sending..." : "Request a callback"}
+          {loading ? "Sending..." : "Submit Quote Request"}
         </button>
       </div>
     </form>
+  );
+}
+
+function TextInput({
+  label,
+  type,
+  required,
+  placeholder,
+  value,
+  onChange,
+}: {
+  label: string;
+  type: string;
+  required?: boolean;
+  placeholder: string;
+  value: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+}) {
+  return (
+    <label className="block text-sm font-semibold text-slate-900">
+      {label}
+      <input
+        type={type}
+        required={required}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-slate-400 focus:border-[#2E3092] focus:ring-4 focus:ring-[#2E3092]/10"
+      />
+    </label>
   );
 }
